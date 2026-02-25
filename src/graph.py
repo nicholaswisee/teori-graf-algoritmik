@@ -1,3 +1,6 @@
+from collections import deque
+
+
 class Graph:
     def __init__(self, directed: bool = False):
         """
@@ -31,6 +34,43 @@ class Graph:
     def get_neighbors(self, vertex):
         """Mengembalikan tetangga (neighbors) dari simpul (vertex) yang diberikan."""
         return self.adj_list.get(vertex, [])
+
+    def dfs(self, start_vertex):
+        """Implementasi Depth-First Search menggunakan Stack"""
+
+        visited = set()
+        stack = deque([start_vertex])
+        visited.add(start_vertex)
+        order = []
+
+        while stack:
+            vertex = stack.pop()
+            order.append(vertex)
+
+            for neighbor, _ in self.adj_list.get(vertex, []):
+                if neighbor not in visited:
+                    visited.add(neighbor)
+                    order.append(neighbor)
+
+        return order
+
+    def bfs(self, start_vertex):
+        """Implementasi Breadth-First Search menggunakan Queue"""
+        visited = set()
+        queue = deque([start_vertex])
+        visited.add(start_vertex)
+        order = []
+
+        while queue:
+            vertex = queue.popleft()
+            order.append(vertex)
+
+            for neighbor, _ in self.adj_list.get(vertex, []):
+                if neighbor not in visited:
+                    visited.add(neighbor)
+                    queue.append(neighbor)
+
+        return order
 
     def __str__(self):
         """Representasi string dari graph."""
