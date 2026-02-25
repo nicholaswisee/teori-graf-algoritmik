@@ -45,12 +45,14 @@ class Graph:
 
         while stack:
             vertex = stack.pop()
-            order.append(vertex)
 
-            for neighbor, _ in self.adj_list.get(vertex, []):
-                if neighbor not in visited:
-                    visited.add(neighbor)
-                    order.append(neighbor)
+            if vertex not in visited:
+                visited.add(vertex)
+                order.append(vertex)
+
+                for neighbor, _ in self.adj_list.get(vertex, []):
+                    if neighbor not in visited:
+                        stack.append(neighbor)
 
         return order
 
