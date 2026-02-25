@@ -1,11 +1,11 @@
-from src.graph import Graph
+from src.graph import UndirectedGraph
 
 
 def main():
     print("=== Teori Graf Algoritmik ===")
 
     # 1. Menginisialisasi graph tak berarah (undirected graph)
-    g = Graph(directed=False)
+    g = UndirectedGraph()
 
     # 2. Menambahkan beberapa sisi (simpul akan ditambahkan secara otomatis)
     print("\nMenambahkan sisi untuk membuat graph sederhana...")

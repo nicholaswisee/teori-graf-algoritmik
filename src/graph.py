@@ -2,12 +2,10 @@ from collections import deque
 
 
 class Graph:
-    def __init__(self, directed: bool = False):
+    def __init__(self):
         """
-        Menginisialisasi objek graph.
-        :param directed: Boolean yang menunjukkan apakah graph berarah (directed).
+        Menginisialisasi objek graph dasar.
         """
-        self.directed = directed
         self.adj_list = {}
 
     def add_vertex(self, vertex):
@@ -18,14 +16,9 @@ class Graph:
     def add_edge(self, u, v, weight=1):
         """
         Menambahkan sisi (edge) ke dalam graph.
-        Jika simpul (vertices) belum ada, akan ditambahkan secara otomatis.
+        Harus diimplementasikan oleh subclass.
         """
-        self.add_vertex(u)
-        self.add_vertex(v)
-
-        self.adj_list[u].append((v, weight))
-        if not self.directed:
-            self.adj_list[v].append((u, weight))
+        pass
 
     def get_vertices(self):
         """Mengembalikan daftar semua simpul (vertices) dalam graph."""
@@ -81,3 +74,33 @@ class Graph:
             neighbors = [f"{n}(w={w})" for n, w in self.adj_list[vertex]]
             result.append(f"{vertex}: {', '.join(neighbors)}")
         return "\n".join(result)
+
+
+class DirectedGraph(Graph):
+    def __init__(self):
+        """Menginisialisasi objek directed graph."""
+        super().__init__()
+
+    def add_edge(self, u, v, weight=1):
+        """
+        Menambahkan sisi (edge) berarah dari u ke v.
+        """
+        self.add_vertex(u)
+        self.add_vertex(v)
+        self.adj_list[u].append((v, weight))
+
+
+class UndirectedGraph(Graph):
+    def __init__(self):
+        """Menginisialisasi objek undirected graph."""
+        super().__init__()
+
+    def add_edge(self, u, v, weight=1):
+        """
+        Menambahkan sisi (edge) tak berarah antara u dan v.
+        """
+        self.add_vertex(u)
+        self.add_vertex(v)
+
+        self.adj_list[u].append((v, weight))
+        self.adj_list[v].append((u, weight))

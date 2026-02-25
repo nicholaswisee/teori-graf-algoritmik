@@ -8,7 +8,7 @@ Proyek ini disusun untuk kelas **Teori Graf Algoritmik** Anda. Proyek ini menyed
 .
 ├── main.py                # Skrip utama untuk menguji dan menjalankan kode graph Anda
 ├── src/                   # Folder kode sumber
-│   ├── graph.py           # Struktur data kelas Graph (Adjacency List)
+│   ├── graph.py           # Struktur data kelas DirectedGraph & UndirectedGraph (Adjacency List)
 │   └── algorithms/        # Folder untuk menyimpan algoritma spesifik di masa mendatang
 │       └── __init__.py    # (misalnya shortest_path.py, mst.py, matching.py)
 └── README.md              # Dokumentasi
@@ -45,5 +45,5 @@ Ini akan menginisialisasi contoh graph dasar dan menampilkan strukturnya untuk m
 Ketika Anda ditugaskan algoritma baru (seperti lintasan terpendek / shortest path):
 
 1. Buat file baru di folder `src/algorithms/` (misalnya, `dijkstra.py`).
-2. Tulis sebuah fungsi yang menerima instance `Graph` sebagai argumen.
+2. Tulis sebuah fungsi yang menerima instance `DirectedGraph` atau `UndirectedGraph` sebagai argumen.
 3. Impor fungsi tersebut ke dalam `main.py` untuk mengujinya.
