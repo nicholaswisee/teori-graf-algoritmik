@@ -33,7 +33,6 @@ class Graph:
 
         visited = set()
         stack = deque([start_vertex])
-        visited.add(start_vertex)
         order = []
 
         while stack:
