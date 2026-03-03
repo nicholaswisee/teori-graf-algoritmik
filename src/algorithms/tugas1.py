@@ -5,7 +5,7 @@ from src.graph import DirectedGraph, Graph, UndirectedGraph
 
 class Tugas1:
     @staticmethod
-    def find_path(graph: Graph, start, end):
+    def find_path_bfs(graph: Graph, start, end):
         """
         Mencari jalur (path) antara dua simpul menggunakan Breadth-First Search (BFS).
         Berfungsi untuk mencari jalur terpendek (dalam jumlah edge).
