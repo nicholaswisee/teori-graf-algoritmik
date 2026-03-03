@@ -2,7 +2,7 @@ from collections import deque
 
 from src.graph import DirectedGraph, Graph, UndirectedGraph
 
-
+print("test")
 class Tugas1:
     @staticmethod
     def find_path_bfs(graph: Graph, start, end):
@@ -12,11 +12,15 @@ class Tugas1:
         Mengembalikan list simpul dari start ke end jika jalur ditemukan, atau None jika tidak ada.
         """
         if start not in graph.get_vertices() or end not in graph.get_vertices():
-            return None
+            return None   
 
         # Queue menyimpan tuple (simpul_saat_ini, path_sementara)
         queue = deque([(start, [start])])
         visited = {start}
+
+
+
+
 
         while queue:
             current, path = queue.popleft()
