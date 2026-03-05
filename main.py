@@ -54,7 +54,7 @@ def main():
 
     tugas1 = Tugas1()
     tugas2 = Tugas2()
-    status1 = tugas1.is_connected(g1)
+    status1 = tugas1.is_connected_bfs(g1)
     jumlah_pulau1 = tugas2.components_count(g1)
 
     print(f"Apakah terhubung? : {status1}")
@@ -69,7 +69,7 @@ def main():
     g2.add_edge("A", "B")  # Pulau 1
     g2.add_edge("C", "D")  # Pulau 2
 
-    status2 = tugas1.is_connected(g2)
+    status2 = tugas1.is_connected_bfs(g2)
     jumlah_pulau2 = tugas2.components_count(g2)
 
     print(f"Apakah terhubung? : {status2}")
