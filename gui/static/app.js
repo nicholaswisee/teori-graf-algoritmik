@@ -837,6 +837,230 @@ function loadPreset(name) {
     draw();
 }
 
+// ─── Special Formations ───────────────────────────────────
+const SPECIAL_GRAPHS = {
+    complete: { name: "Graf Lengkap (Kn)", params: [{ id: "n", label: "n", default: 5 }] },
+    bipartite: { name: "Bipartit Lengkap (Km,n)", params: [{ id: "m", label: "m", default: 3 }, { id: "n", label: "n", default: 3 }] },
+    tree: { name: "Pohon (Tn)", params: [{ id: "n", label: "n", default: 7 }] },
+    cycle: { name: "Siklus (Cn)", params: [{ id: "n", label: "n", default: 6 }] },
+    path: { name: "Lintasan (Pn)", params: [{ id: "n", label: "n", default: 5 }] },
+    wheel: { name: "Graf Roda (Wn)", params: [{ id: "n", label: "n", default: 6 }] },
+    prism: { name: "Graf Prisma", params: [{ id: "n", label: "n", default: 5 }] },
+    petersen: { name: "Petersen", params: [] },
+    gen_petersen: { name: "Gen Petersen P(n,k)", params: [{ id: "n", label: "n", default: 5 }, { id: "k", label: "k", default: 2 }] },
+    circulant: { name: "Sirkulan Cn(a...)", params: [{ id: "n", label: "n", default: 8 }, { id: "j", label: "Jumps", default: "1,2", type: "text" }] },
+    hypercube: { name: "Hypercube (Hn)", params: [{ id: "n", label: "n", default: 3 }] },
+    grid: { name: "Grid G(m,n)", params: [{ id: "m", label: "m", default: 3 }, { id: "n", label: "n", default: 4 }] }
+};
+
+function initSpecialGraphs() {
+    const sel = document.getElementById("special-graph-select");
+    if (!sel) return;
+    sel.innerHTML = Object.entries(SPECIAL_GRAPHS).map(([k, v]) => `<option value="${k}">${v.name}</option>`).join("");
+    onSpecialGraphChange();
+}
+
+function onSpecialGraphChange() {
+    const sel = document.getElementById("special-graph-select");
+    const container = document.getElementById("special-graph-params");
+    if (!sel || !container) return;
+    const key = sel.value;
+    const spec = SPECIAL_GRAPHS[key];
+    if (!spec) return;
+    
+    container.innerHTML = spec.params.map(p => `
+        <div style="flex:1">
+            <label style="font-size:11px; margin-bottom:2px; display:block; color:var(--text-dim)">${p.label}</label>
+            <input type="${p.type || 'number'}" id="sg-${p.id}" class="text-input" value="${p.default}" ${p.type !== 'text' ? 'min="1" max="50"' : ''} style="width:100%; padding:4px 8px;">
+        </div>
+    `).join("");
+}
+
+function generateSpecialGraph() {
+    const sel = document.getElementById("special-graph-select");
+    if (!sel) return;
+    const key = sel.value;
+    const spec = SPECIAL_GRAPHS[key];
+    
+    // Read params
+    const p = {};
+    spec.params.forEach(param => {
+        const input = document.getElementById(`sg-${param.id}`);
+        if(param.type === 'text') p[param.id] = input.value;
+        else p[param.id] = parseInt(input.value) || param.default;
+    });
+
+    clearGraph();
+    const w = canvasW(), h = canvasH();
+    const cx = w / 2, cy = h / 2;
+    const baseR = Math.min(w, h) * 0.35;
+    
+    // Auto-set undirected for all standard special graphs typically
+    const directedToggle = document.getElementById("directed-toggle");
+    if (directedToggle) {
+        directedToggle.checked = false;
+        onDirectedChange();
+    }
+
+    function addV(id, x, y) { state.vertices[String(id)] = { x, y }; }
+    function addE(u, v) { addEdge(String(u), String(v), 1); addEdge(String(v), String(u), 1); }
+
+    if (key === "complete") {
+        const n = p.n;
+        for (let i = 0; i < n; i++) {
+            const a = -Math.PI/2 + (i/n) * Math.PI*2;
+            addV(i, cx + Math.cos(a)*baseR, cy + Math.sin(a)*baseR);
+        }
+        for (let i = 0; i < n; i++) {
+            for (let j = i+1; j < n; j++) addE(i, j);
+        }
+    }
+    else if (key === "bipartite") {
+        const m = p.m, n = p.n;
+        const spacingX = Math.min(w * 0.8 / Math.max(m, n), 80);
+        const startX_m = cx - ((m-1)*spacingX)/2;
+        const startX_n = cx - ((n-1)*spacingX)/2;
+        for(let i=0; i<m; i++) addV("U"+i, startX_m + i*spacingX, cy - 80);
+        for(let j=0; j<n; j++) addV("V"+j, startX_n + j*spacingX, cy + 80);
+        for(let i=0; i<m; i++) {
+            for(let j=0; j<n; j++) addE("U"+i, "V"+j);
+        }
+    }
+    else if (key === "tree") {
+        const n = Math.max(1, p.n);
+        addV(0, cx, cy - baseR + 20);
+        const layers = {0: 0};
+        for(let i=1; i<n; i++) {
+            const parent = Math.floor(Math.random() * i);
+            addE(parent, i);
+            layers[i] = layers[parent] + 1;
+        }
+        const depthCount = {}, depthIndex = {};
+        for(let i=0; i<n; i++) {
+            depthCount[layers[i]] = (depthCount[layers[i]] || 0) + 1;
+            depthIndex[i] = (depthCount[layers[i]] - 1);
+        }
+        const maxD = Math.max(...Object.values(layers));
+        const spacingY = maxD > 0 ? (baseR * 2 - 40) / maxD : 0;
+        for(let i=0; i<n; i++) {
+            const d = layers[i];
+            const cnt = depthCount[d];
+            const spacingX = Math.min(w * 0.8 / cnt, 100);
+            const sx = cx - ((cnt-1)*spacingX)/2;
+            addV(i, sx + depthIndex[i]*spacingX, cy - baseR + 20 + d*spacingY);
+        }
+    }
+    else if (key === "cycle") {
+        const n = p.n;
+        for (let i = 0; i < n; i++) {
+            const a = -Math.PI/2 + (i/n) * Math.PI*2;
+            addV(i, cx + Math.cos(a)*baseR, cy + Math.sin(a)*baseR);
+        }
+        for (let i = 0; i < n; i++) addE(i, (i+1)%n);
+    }
+    else if (key === "path") {
+        const n = p.n;
+        const spacing = Math.min(w * 0.8 / n, 80);
+        const startX = cx - ((n-1)*spacing)/2;
+        for (let i = 0; i < n; i++) {
+            const yOffset = (i%2===0) ? -20 : 20;
+            addV(i, startX + i*spacing, cy + yOffset);
+        }
+        for (let i = 0; i < n-1; i++) addE(i, i+1);
+    }
+    else if (key === "wheel") {
+        const n = Math.max(3, p.n); 
+        addV("C", cx, cy);
+        for (let i = 0; i < n; i++) {
+            const a = -Math.PI/2 + (i/n) * Math.PI*2;
+            addV(i, cx + Math.cos(a)*baseR, cy + Math.sin(a)*baseR);
+            addE("C", i);
+            addE(i, (i+1)%n);
+        }
+    }
+    else if (key === "prism") {
+        const n = Math.max(3, p.n);
+        const inR = baseR * 0.4;
+        for (let i = 0; i < n; i++) {
+            const a = -Math.PI/2 + (i/n) * Math.PI*2;
+            addV("I"+i, cx + Math.cos(a)*inR, cy + Math.sin(a)*inR);
+            addV("O"+i, cx + Math.cos(a)*baseR, cy + Math.sin(a)*baseR);
+            addE("I"+i, "I"+((i+1)%n)); 
+            addE("O"+i, "O"+((i+1)%n)); 
+            addE("I"+i, "O"+i);
+        }
+    }
+    else if (key === "petersen") {
+        const inR = baseR * 0.4;
+        for (let i = 0; i < 5; i++) {
+            const aOuter = -Math.PI/2 + (i/5) * Math.PI*2;
+            addV("O"+i, cx + Math.cos(aOuter)*baseR, cy + Math.sin(aOuter)*baseR);
+            addV("I"+i, cx + Math.cos(aOuter)*inR, cy + Math.sin(aOuter)*inR);
+            addE("O"+i, "I"+i);
+            addE("O"+i, "O"+((i+1)%5));
+            addE("I"+i, "I"+((i+2)%5)); 
+        }
+    }
+    else if (key === "gen_petersen") {
+        const n = Math.max(3, p.n), k = p.k;
+        const inR = baseR * 0.4;
+        for (let i = 0; i < n; i++) {
+            const a = -Math.PI/2 + (i/n) * Math.PI*2;
+            addV("O"+i, cx + Math.cos(a)*baseR, cy + Math.sin(a)*baseR);
+            addV("I"+i, cx + Math.cos(a)*inR, cy + Math.sin(a)*inR);
+            addE("O"+i, "O"+((i+1)%n));
+            addE("O"+i, "I"+i);
+            addE("I"+i, "I"+((i+k)%n));
+        }
+    }
+    else if (key === "circulant") {
+        const n = Math.max(3, p.n);
+        const jumps = p.j.split(",").map(s => parseInt(s.trim())).filter(x => !isNaN(x));
+        for (let i = 0; i < n; i++) {
+            const a = -Math.PI/2 + (i/n) * Math.PI*2;
+            addV(i, cx + Math.cos(a)*baseR, cy + Math.sin(a)*baseR);
+        }
+        for (let i = 0; i < n; i++) {
+            jumps.forEach(j => {
+                addE(i, (i+j)%n);
+            });
+        }
+    }
+    else if (key === "hypercube") {
+        const n = Math.min(5, Math.max(1, p.n));
+        const total = 1 << n;
+        for(let i=0; i<total; i++) {
+            let setBits = 0;
+            for(let b=0; b<n; b++) if((i & (1<<b))) setBits++;
+            const a = (i/total) * Math.PI * 2;
+            const rOffset = (n === 1) ? 1 : (n===2 ? 0.8 : (setBits/n));
+            addV(i, cx + Math.cos(a)*baseR*(0.3 + rOffset*0.7), cy + Math.sin(a)*baseR*(0.3 + rOffset*0.7));
+            for(let b=0; b<n; b++) {
+                if((i & (1<<b)) === 0) addE(i, i | (1<<b)); 
+            }
+        }
+    }
+    else if (key === "grid") {
+        const m = Math.max(1, p.m), n = Math.max(1, p.n);
+        const spacingX = Math.min(w * 0.8 / m, 70);
+        const spacingY = Math.min(h * 0.7 / n, 70);
+        const startX = cx - ((m-1)*spacingX)/2;
+        const startY = cy - ((n-1)*spacingY)/2;
+        
+        for(let i=0; i<m; i++) {
+            for(let j=0; j<n; j++) {
+                const id = `${i}_${j}`;
+                addV(id, startX + i*spacingX, startY + j*spacingY);
+                if (i > 0) addE(id, `${i-1}_${j}`);
+                if (j > 0) addE(id, `${i}_${j-1}`);
+            }
+        }
+    }
+
+    refreshSelects();
+    draw();
+}
+
 // ─── API helpers ──────────────────────────────────────────
 function graphPayload(extra = {}) {
     const vertices = Object.keys(state.vertices);
@@ -1424,5 +1648,6 @@ function clearResults() {
 
 // ─── Init ─────────────────────────────────────────────────
 resize();
+initSpecialGraphs();
 loadPreset("triangle");
 startRenderLoop();

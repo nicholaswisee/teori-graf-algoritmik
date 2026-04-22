@@ -282,9 +282,9 @@ def api_tugas5_tsp():
     start = data.get("start")
     
     try:
-        tour, total_weight, selected_edges, steps, frames = Tugas5.nearest_neighbor_tsp_trace(g, start)
+        tour, total_weight, selected_edges, steps, frames = Tugas5.christofides_3opt_tsp_trace(g, start)
         return jsonify({
-            "algorithm": "nearest_neighbor_tsp",
+            "algorithm": "christofides_3opt_tsp",
             "tour": tour,
             "total_weight": total_weight,
             "edges": selected_edges,

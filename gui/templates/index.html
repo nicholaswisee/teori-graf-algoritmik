@@ -474,6 +474,18 @@
                         </div>
                     </div>
                     <div class="field-group">
+                        <label class="field-label">Special Formations</label>
+                        <select id="special-graph-select" class="select-input" onchange="onSpecialGraphChange()">
+                            <!-- Managed by JS -->
+                        </select>
+                        <div id="special-graph-params" style="display: flex; gap: 8px; margin-top: 8px;">
+                            <!-- Managed by JS -->
+                        </div>
+                        <button class="btn-primary full-width mt-4" onclick="generateSpecialGraph()">
+                            Generate Graph
+                        </button>
+                    </div>
+                    <div class="field-group">
                         <label class="field-label">Node Guide</label>
                         <p class="hint-text">
                             Click on canvas to place a node. Shift‑click two
