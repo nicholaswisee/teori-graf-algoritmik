@@ -8,7 +8,10 @@ from flask import Flask, jsonify, render_template, request
 
 from src.algorithms.tugas1 import Tugas1
 from src.algorithms.tugas2 import Tugas2
+from src.algorithms.tugas3 import Tugas3
+from src.algorithms.tugas4 import Tugas4
 from src.graph import DirectedGraph, UndirectedGraph
+from src.algorithms.tugas5 import Tugas5
 
 app = Flask(__name__)
 
@@ -30,6 +33,7 @@ def build_graph(data):
 # ──────────────────────────────────────────
 # Routes
 # ──────────────────────────────────────────
+
 
 @app.route("/")
 def index():
@@ -100,6 +104,7 @@ def api_components():
 
     # Assign a component ID to each vertex so the frontend can colour them
     from collections import deque
+
     vertex_component = {}
     comp_id = 0
     all_vertices = set(g.get_vertices())
@@ -117,11 +122,13 @@ def api_components():
         all_vertices -= visited
         comp_id += 1
 
-    return jsonify({
-        "count": count,
-        "largest": largest,
-        "vertex_component": vertex_component,
-    })
+    return jsonify(
+        {
+            "count": count,
+            "largest": largest,
+            "vertex_component": vertex_component,
+        }
+    )
 
 
 @app.route("/api/islands", methods=["POST"])
@@ -160,6 +167,132 @@ def api_islands():
                 islands.append(cells)
 
     return jsonify({"count": len(islands), "islands": islands})
+
+
+@app.route("/api/tugas3/properties", methods=["POST"])
+def api_tugas3_properties():
+    """Calculate and return Bipartite, Cycle, Diameter, and Girth properties."""
+    data = request.get_json()
+    g = build_graph(data)
+
+    try:
+        is_bip = Tugas3.is_bipartite(g)
+        has_cyc = Tugas3.has_cycle(g)
+        diam = Tugas3.diameter(g)
+        grth = Tugas3.girth(g)
+        return jsonify(
+            {
+                "is_bipartite": is_bip,
+                "has_cycle": has_cyc,
+                "diameter": diam,
+                "girth": grth,
+            }
+        )
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/tugas3/shortest_path", methods=["POST"])
+def api_tugas3_shortest_path():
+    """Calculate the shortest path distance between two nodes."""
+    data = request.get_json()
+    g = build_graph(data)
+    start = data.get("start")
+    end = data.get("end")
+
+    if not start or not end:
+        return jsonify({"error": "Start and end nodes are required"}), 400
+
+    if start not in g.get_vertices() or end not in g.get_vertices():
+        return jsonify({"error": "Start and end nodes must be in the graph"}), 400
+
+    try:
+        distance = Tugas3.shortest_path(g, start, end)
+        return jsonify({"distance": distance if distance != float("inf") else -1})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/tugas4/run", methods=["POST"])
+def api_tugas4_run():
+    """Run one of the weighted Tugas 4 algorithms and return trace data."""
+    data = request.get_json()
+    g = build_graph(data)
+    algorithm = data.get("algorithm", "shortest_path")
+
+    try:
+        if algorithm == "shortest_path":
+            start = data.get("start")
+            end = data.get("end")
+            if not start or not end:
+                return jsonify({"error": "Start and end nodes are required"}), 400
+
+            path, distance, steps, frames = Tugas4.shortest_path_trace(g, start, end)
+            return jsonify(
+                {
+                    "algorithm": algorithm,
+                    "found": bool(path),
+                    "path": path,
+                    "distance": distance,
+                    "steps": steps,
+                    "frames": frames,
+                }
+            )
+
+        if algorithm == "prim":
+            if data.get("directed", False):
+                return jsonify({"error": "Prim requires an undirected graph"}), 400
+            mst_graph, edges, total_weight, steps, frames = Tugas4.mst_prim_trace(g)
+            return jsonify(
+                {
+                    "algorithm": algorithm,
+                    "edges": edges,
+                    "total_weight": total_weight,
+                    "steps": steps,
+                    "frames": frames,
+                    "nodes": mst_graph.get_vertices(),
+                }
+            )
+
+        if algorithm == "kruskal":
+            if data.get("directed", False):
+                return jsonify({"error": "Kruskal requires an undirected graph"}), 400
+            mst_graph, edges, total_weight, steps, frames = Tugas4.mst_kruskal_trace(g)
+            return jsonify(
+                {
+                    "algorithm": algorithm,
+                    "edges": edges,
+                    "total_weight": total_weight,
+                    "steps": steps,
+                    "frames": frames,
+                    "nodes": mst_graph.get_vertices(),
+                }
+            )
+
+        return jsonify({"error": "Unknown Tugas 4 algorithm"}), 400
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/tugas5/tsp", methods=["POST"])
+def api_tugas5_tsp():
+    """Run Nearest Neighbor TSP algorithm."""
+    data = request.get_json()
+    g = build_graph(data)
+    start = data.get("start")
+    
+    try:
+        tour, total_weight, selected_edges, steps, frames = Tugas5.nearest_neighbor_tsp_trace(g, start)
+        return jsonify({
+            "algorithm": "nearest_neighbor_tsp",
+            "tour": tour,
+            "total_weight": total_weight,
+            "edges": selected_edges,
+            "steps": steps,
+            "frames": frames,
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
 if __name__ == "__main__":
