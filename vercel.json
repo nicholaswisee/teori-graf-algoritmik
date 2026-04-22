@@ -1,0 +1,19 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "gui/app.py",
+      "use": "@vercel/python"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/static/(.*)",
+      "dest": "/gui/static/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "gui/app.py"
+    }
+  ]
+}
