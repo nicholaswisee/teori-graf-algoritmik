@@ -481,6 +481,31 @@
                         <div id="special-graph-params" style="display: flex; gap: 8px; margin-top: 8px;">
                             <!-- Managed by JS -->
                         </div>
+                        <!-- Randomize Weights option -->
+                        <div style="margin-top: 10px; padding: 10px 12px; background: rgba(124,106,247,0.07); border: 1px solid rgba(124,106,247,0.18); border-radius: 8px;">
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; user-select: none; font-size: 12px; font-weight: 600; color: var(--text-dim);">
+                                <label class="toggle-switch" style="flex-shrink:0;">
+                                    <input type="checkbox" id="sg-randomize-weights" onchange="onRandomizeWeightsChange()" />
+                                    <span class="toggle-track"></span>
+                                </label>
+                                Randomize Edge Weights
+                            </label>
+                            <div id="sg-weight-range" style="display:none; margin-top: 8px; gap: 8px; align-items: center; flex-wrap: wrap;">
+                                <div style="display: flex; gap: 8px; width: 100%;">
+                                    <div style="flex:1;">
+                                        <label style="font-size:11px; color:var(--text-dim); display:block; margin-bottom:3px;">Min</label>
+                                        <input type="number" id="sg-weight-min" class="text-input" value="1" min="1" max="999" style="width:100%; padding:4px 8px;" />
+                                    </div>
+                                    <div style="flex:1;">
+                                        <label style="font-size:11px; color:var(--text-dim); display:block; margin-bottom:3px;">Max</label>
+                                        <input type="number" id="sg-weight-max" class="text-input" value="20" min="1" max="999" style="width:100%; padding:4px 8px;" />
+                                    </div>
+                                </div>
+                                <p style="font-size:10px; color: var(--text-dim); margin: 4px 0 0; line-height:1.4;">
+                                    Each edge gets a random integer weight in [min, max].
+                                </p>
+                            </div>
+                        </div>
                         <button class="btn-primary full-width mt-4" onclick="generateSpecialGraph()">
                             Generate Graph
                         </button>

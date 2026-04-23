@@ -877,6 +877,21 @@ function initSpecialGraphs() {
     onSpecialGraphChange();
 }
 
+function onRandomizeWeightsChange() {
+    const cb = document.getElementById("sg-randomize-weights");
+    const rangeDiv = document.getElementById("sg-weight-range");
+    if (!cb || !rangeDiv) return;
+    rangeDiv.style.display = cb.checked ? "flex" : "none";
+}
+
+function getRandomEdgeWeight() {
+    const cb = document.getElementById("sg-randomize-weights");
+    if (!cb || !cb.checked) return 1;
+    const minVal = Math.max(1, parseInt(document.getElementById("sg-weight-min")?.value) || 1);
+    const maxVal = Math.max(minVal, parseInt(document.getElementById("sg-weight-max")?.value) || 20);
+    return Math.floor(Math.random() * (maxVal - minVal + 1)) + minVal;
+}
+
 function onSpecialGraphChange() {
     const sel = document.getElementById("special-graph-select");
     const container = document.getElementById("special-graph-params");
@@ -920,7 +935,11 @@ function generateSpecialGraph() {
     }
 
     function addV(id, x, y) { state.vertices[String(id)] = { x, y }; }
-    function addE(u, v) { addEdge(String(u), String(v), 1); addEdge(String(v), String(u), 1); }
+    function addE(u, v, w) {
+        const weight = (w !== undefined && w !== null) ? w : getRandomEdgeWeight();
+        addEdge(String(u), String(v), weight);
+        addEdge(String(v), String(u), weight);
+    }
 
     if (key === "complete") {
         const n = p.n;
