@@ -504,6 +504,22 @@
                                 <p style="font-size:10px; color: var(--text-dim); margin: 4px 0 0; line-height:1.4;">
                                     Each edge gets a random integer weight in [min, max].
                                 </p>
+                                <!-- Triangle Inequality sub-option -->
+                                <div style="width:100%; border-top: 1px solid rgba(124,106,247,0.2); margin-top: 8px; padding-top: 8px;">
+                                    <label style="display:flex; align-items:flex-start; gap:8px; cursor:pointer; user-select:none;">
+                                        <label class="toggle-switch" style="flex-shrink:0; margin-top:1px;">
+                                            <input type="checkbox" id="sg-triangle-ineq" />
+                                            <span class="toggle-track"></span>
+                                        </label>
+                                        <span>
+                                            <span style="font-size:11px; font-weight:600; color:var(--text-dim); display:block;">Ensure Triangle Inequality</span>
+                                            <span style="font-size:10px; color:var(--text-dim); opacity:0.75; line-height:1.4; display:block; margin-top:2px;">
+                                                Derives weights from Euclidean node distances, then scales them to [min, max].
+                                                Guarantees <em>w(A,C) ≤ w(A,B)+w(B,C)</em> for every triple.
+                                            </span>
+                                        </span>
+                                    </label>
+                                </div>
                             </div>
                         </div>
                         <button class="btn-primary full-width mt-4" onclick="generateSpecialGraph()">

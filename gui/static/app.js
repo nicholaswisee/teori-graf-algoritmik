@@ -882,6 +882,11 @@ function onRandomizeWeightsChange() {
     const rangeDiv = document.getElementById("sg-weight-range");
     if (!cb || !rangeDiv) return;
     rangeDiv.style.display = cb.checked ? "flex" : "none";
+    // Reset triangle-inequality checkbox when main toggle is turned off
+    if (!cb.checked) {
+        const triCb = document.getElementById("sg-triangle-ineq");
+        if (triCb) triCb.checked = false;
+    }
 }
 
 function getRandomEdgeWeight() {
@@ -890,6 +895,54 @@ function getRandomEdgeWeight() {
     const minVal = Math.max(1, parseInt(document.getElementById("sg-weight-min")?.value) || 1);
     const maxVal = Math.max(minVal, parseInt(document.getElementById("sg-weight-max")?.value) || 20);
     return Math.floor(Math.random() * (maxVal - minVal + 1)) + minVal;
+}
+
+/**
+ * Post-generation pass: replaces every edge weight with the Euclidean distance
+ * between its two endpoint canvas positions, then linearly scales the result
+ * to fit within [min, max] as chosen by the user.
+ * Euclidean distance satisfies the triangle inequality by definition, so the
+ * resulting weighted graph is always metric.
+ */
+function applyTriangleInequalityWeights() {
+    const triCb = document.getElementById("sg-triangle-ineq");
+    if (!triCb || !triCb.checked) return;
+
+    const minVal = Math.max(1, parseInt(document.getElementById("sg-weight-min")?.value) || 1);
+    const maxVal = Math.max(minVal, parseInt(document.getElementById("sg-weight-max")?.value) || 20);
+
+    // Compute raw Euclidean distances for each unique undirected pair
+    const seen = new Set();
+    const rawDist = new Map(); // key "u|v" (sorted) -> px distance
+    for (const e of state.edges) {
+        const pair = [e.from, e.to].sort().join("|");
+        if (seen.has(pair)) continue;
+        seen.add(pair);
+        const a = state.vertices[e.from];
+        const b = state.vertices[e.to];
+        if (!a || !b) continue;
+        rawDist.set(pair, Math.hypot(b.x - a.x, b.y - a.y));
+    }
+
+    if (rawDist.size === 0) return;
+
+    // Find the min/max raw distances so we can scale into [minVal, maxVal]
+    const dists = [...rawDist.values()];
+    const dMin = Math.min(...dists);
+    const dMax = Math.max(...dists);
+    const span = dMax - dMin;
+
+    // Apply scaled weights back to edges
+    for (const e of state.edges) {
+        const pair = [e.from, e.to].sort().join("|");
+        const raw = rawDist.get(pair);
+        if (raw === undefined) continue;
+        // If all edges have the same distance (e.g. regular graph), give them minVal
+        const scaled = span < 1
+            ? minVal
+            : Math.round(minVal + ((raw - dMin) / span) * (maxVal - minVal));
+        e.weight = Math.max(1, scaled);
+    }
 }
 
 function onSpecialGraphChange() {
@@ -1092,6 +1145,9 @@ function generateSpecialGraph() {
             }
         }
     }
+
+    // If triangle-inequality mode is active, recompute weights from geometry
+    applyTriangleInequalityWeights();
 
     refreshSelects();
     draw();
