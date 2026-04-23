@@ -898,50 +898,71 @@ function getRandomEdgeWeight() {
 }
 
 /**
- * Post-generation pass: replaces every edge weight with the Euclidean distance
- * between its two endpoint canvas positions, then linearly scales the result
- * to fit within [min, max] as chosen by the user.
- * Euclidean distance satisfies the triangle inequality by definition, so the
- * resulting weighted graph is always metric.
+ * Post-generation pass that enforces the triangle inequality on the already-
+ * randomised edge weights using Floyd-Warshall.
+ *
+ * Algorithm:
+ *   1. Build a distance matrix D initialised from the current random weights
+ *      (∞ for non-adjacent pairs, 0 on diagonal).
+ *   2. Run Floyd-Warshall to compute all-pairs shortest paths in D.
+ *   3. For every existing edge (u,v) set its weight to D[u][v].
+ *
+ * Why does this work?
+ *   After FW, D[u][v] = shortest path distance from u to v.
+ *   By definition D[u][v] ≤ D[u][k] + D[k][v] for every k — i.e. the
+ *   triangle inequality holds for every triple of nodes.
+ *   Weights are still varied and random because they started from the user's
+ *   random range; FW only *reduces* weights where the direct edge is longer
+ *   than an indirect route, so the distribution stays interesting.
  */
 function applyTriangleInequalityWeights() {
     const triCb = document.getElementById("sg-triangle-ineq");
     if (!triCb || !triCb.checked) return;
 
-    const minVal = Math.max(1, parseInt(document.getElementById("sg-weight-min")?.value) || 1);
-    const maxVal = Math.max(minVal, parseInt(document.getElementById("sg-weight-max")?.value) || 20);
+    const nodes = Object.keys(state.vertices);
+    const n = nodes.length;
+    if (n === 0) return;
 
-    // Compute raw Euclidean distances for each unique undirected pair
+    // Map node labels → indices
+    const idx = {};
+    nodes.forEach((v, i) => idx[v] = i);
+
+    // Initialise distance matrix
+    const INF = Infinity;
+    const D = Array.from({ length: n }, (_, i) =>
+        Array.from({ length: n }, (__, j) => (i === j ? 0 : INF))
+    );
+
+    // Fill in current edge weights (undirected — set both directions)
     const seen = new Set();
-    const rawDist = new Map(); // key "u|v" (sorted) -> px distance
     for (const e of state.edges) {
+        const u = idx[e.from], v = idx[e.to];
+        if (u === undefined || v === undefined) continue;
         const pair = [e.from, e.to].sort().join("|");
-        if (seen.has(pair)) continue;
-        seen.add(pair);
-        const a = state.vertices[e.from];
-        const b = state.vertices[e.to];
-        if (!a || !b) continue;
-        rawDist.set(pair, Math.hypot(b.x - a.x, b.y - a.y));
+        if (!seen.has(pair)) {
+            seen.add(pair);
+            if (e.weight < D[u][v]) { D[u][v] = e.weight; D[v][u] = e.weight; }
+        }
     }
 
-    if (rawDist.size === 0) return;
+    // Floyd-Warshall
+    for (let k = 0; k < n; k++) {
+        for (let i = 0; i < n; i++) {
+            if (D[i][k] === INF) continue;
+            for (let j = 0; j < n; j++) {
+                if (D[i][k] + D[k][j] < D[i][j]) {
+                    D[i][j] = D[i][k] + D[k][j];
+                }
+            }
+        }
+    }
 
-    // Find the min/max raw distances so we can scale into [minVal, maxVal]
-    const dists = [...rawDist.values()];
-    const dMin = Math.min(...dists);
-    const dMax = Math.max(...dists);
-    const span = dMax - dMin;
-
-    // Apply scaled weights back to edges
+    // Write shortest-path distances back to every edge
     for (const e of state.edges) {
-        const pair = [e.from, e.to].sort().join("|");
-        const raw = rawDist.get(pair);
-        if (raw === undefined) continue;
-        // If all edges have the same distance (e.g. regular graph), give them minVal
-        const scaled = span < 1
-            ? minVal
-            : Math.round(minVal + ((raw - dMin) / span) * (maxVal - minVal));
-        e.weight = Math.max(1, scaled);
+        const u = idx[e.from], v = idx[e.to];
+        if (u === undefined || v === undefined) continue;
+        const sp = D[u][v];
+        if (sp !== INF) e.weight = Math.max(1, sp);
     }
 }
 
