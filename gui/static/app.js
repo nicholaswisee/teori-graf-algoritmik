@@ -27,6 +27,10 @@ const state = {
     t4Frames: [],
     t4FrameIndex: 0,
     t4Playing: false,
+    // TSP-specific highlight sets
+    t5CutEdges: new Set(),   // red dashed — edges being severed in 3-opt
+    t5SwapEdges: new Set(),  // green — newly reconnected edges in 3-opt
+    t5FinalPathEdges: new Set(), // final tour edges (restored on step=0)
     t4LastStepTime: 0,
     t4StepInterval: 850,
     // highlight state
@@ -182,6 +186,8 @@ function draw(ts = 0) {
                 const edgeKey = `${edge.from}→${edge.to}`;
                 return state.pathEdges.has(edgeKey);
             });
+            const isCut = state.t5CutEdges.has(`${e.from}→${e.to}`) || state.t5CutEdges.has(`${e.to}→${e.from}`);
+            const isSwap = state.t5SwapEdges.has(`${e.from}→${e.to}`) || state.t5SwapEdges.has(`${e.to}→${e.from}`);
             const showWeight = !renderedWeightLabels.has(pairKey);
             renderedWeightLabels.add(pairKey);
             drawEdge(
@@ -192,6 +198,8 @@ function draw(ts = 0) {
                 isActive,
                 e.weight ?? 1,
                 showWeight,
+                isCut,
+                isSwap,
             );
         }
     }
@@ -279,6 +287,8 @@ function drawEdge(
     isActive = false,
     weight = 1,
     showWeight = true,
+    isCut = false,
+    isSwap = false,
 ) {
     const dx = b.x - a.x,
         dy = b.y - a.y;
@@ -293,30 +303,37 @@ function drawEdge(
     const ey = b.y - uy * NODE_R;
 
     ctx.save();
-        const pathHighlight = isPath && !isActive;
-        const edgeColor = isActive ? "#4aa3ff" : pathHighlight ? "#fbbf24" : EDGE_COL;
-        const outlineColor = isActive
-                ? "#fff"
-                : pathHighlight
-                    ? "#fff"
-                    : "transparent";
+    const pathHighlight = isPath && !isActive && !isCut && !isSwap;
+    const edgeColor = isActive ? "#4aa3ff"
+        : isSwap ? "#22c55e"
+        : isCut ? "#ef4444"
+        : pathHighlight ? "#fbbf24"
+        : EDGE_COL;
+    const outlineColor = (isActive || isSwap || isCut || pathHighlight) ? "#fff" : "transparent";
     ctx.lineCap = "round";
     ctx.lineJoin = "round";
+    // Dashed style for cut edges
+    if (isCut) {
+        ctx.setLineDash([7, 5]);
+    } else {
+        ctx.setLineDash([]);
+    }
     ctx.beginPath();
     ctx.moveTo(sx, sy);
     ctx.lineTo(ex, ey);
-    if (isActive || pathHighlight) {
+    if (isActive || pathHighlight || isCut || isSwap) {
         ctx.strokeStyle = outlineColor;
-        ctx.lineWidth = isActive ? 8 : 6;
+        ctx.lineWidth = isActive ? 8 : isSwap ? 7 : isCut ? 7 : 6;
         ctx.stroke();
         ctx.strokeStyle = edgeColor;
-        ctx.lineWidth = isActive ? 4 : 3;
+        ctx.lineWidth = isActive ? 4 : isSwap ? 3.5 : isCut ? 3 : 3;
         ctx.stroke();
     } else {
         ctx.strokeStyle = edgeColor;
         ctx.lineWidth = 1.5;
         ctx.stroke();
     }
+    ctx.setLineDash([]);
 
     if (directed) {
         const head = 10,
@@ -1173,6 +1190,9 @@ function clearAnimation() {
     state.t4FrameIndex = 0;
     state.t4Playing = false;
     state.t4LastStepTime = 0;
+    state.t5CutEdges = new Set();
+    state.t5SwapEdges = new Set();
+    state.t5FinalPathEdges = new Set();
 }
 
 // ─── Path finding ─────────────────────────────────────────
@@ -1358,8 +1378,18 @@ function updateTugas4StepCounter() {
 
     const stepItems = document.querySelectorAll(`#${listId} li`);
     stepItems.forEach((item, index) => {
-        item.classList.toggle("active", index < state.t4FrameIndex);
+        if (state.mode === 'tugas5') {
+            // 1:1 step-frame sync: highlight ONLY the current step
+            item.classList.toggle("active", index === state.t4FrameIndex - 1);
+        } else {
+            // T4 behaviour: highlight all steps up to current frame
+            item.classList.toggle("active", index < state.t4FrameIndex);
+        }
     });
+
+    // Auto-scroll the active step into view
+    const activeItem = document.querySelector(`#${listId} li.active`);
+    if (activeItem) activeItem.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
 }
 
 function applyTugas4Frame() {
@@ -1368,6 +1398,31 @@ function applyTugas4Frame() {
     state.activePathEdge = frame?.edge
         ? `${frame.edge[0]}→${frame.edge[1]}`
         : null;
+
+    // TSP mode: update per-frame edge highlights
+    if (state.mode === 'tugas5' && frame) {
+        // Update current route (gold)
+        if (frame.path_edges && frame.path_edges.length > 0) {
+            state.pathEdges = new Set();
+            for (const [u, v] of frame.path_edges) {
+                state.pathEdges.add(`${u}→${v}`);
+                state.pathEdges.add(`${v}→${u}`);
+            }
+        }
+        // Update cut edges (red dashed)
+        state.t5CutEdges = new Set();
+        for (const [u, v] of (frame.cut_edges || [])) {
+            state.t5CutEdges.add(`${u}→${v}`);
+            state.t5CutEdges.add(`${v}→${u}`);
+        }
+        // Update swap edges (green — new connections)
+        state.t5SwapEdges = new Set();
+        for (const [u, v] of (frame.swap_edges || [])) {
+            state.t5SwapEdges.add(`${u}→${v}`);
+            state.t5SwapEdges.add(`${v}→${u}`);
+        }
+    }
+
     updateTugas4StepCounter();
     draw();
 }
@@ -1386,6 +1441,12 @@ function t4StepBack() {
     if (state.t4FrameIndex === 0) {
         state.pulseNode = null;
         state.activePathEdge = null;
+        // In TSP mode, restore the final tour when stepping back to start
+        if (state.mode === 'tugas5') {
+            state.pathEdges = new Set(state.t5FinalPathEdges);
+            state.t5CutEdges = new Set();
+            state.t5SwapEdges = new Set();
+        }
         updateTugas4StepCounter();
         draw();
         return;
@@ -1498,13 +1559,15 @@ async function runTugas5() {
 
         box.classList.remove("hidden");
         controls.classList.remove("hidden");
+
         state.t4Frames = data.frames || [];
         state.t4FrameIndex = 0;
         state.t4Playing = false;
         state.pathNodes = [];
-        state.pathEdges = new Set();
         state.activePathEdge = null;
         state.pulseNode = null;
+        state.t5CutEdges = new Set();
+        state.t5SwapEdges = new Set();
 
         const expectedLen = Object.keys(state.vertices).length + 1;
         const completeTour = data.tour && data.tour.length === expectedLen && data.tour[0] === data.tour[data.tour.length - 1];
@@ -1516,7 +1579,8 @@ async function runTugas5() {
             badge.textContent = `✗ Incomplete Tour (Dead End)`;
             badge.className = "result-badge disconnected";
         }
-        
+
+        // Build final tour edges and store as the persistent reference
         state.pathEdges = new Set();
         for (const edge of data.edges || []) {
             state.pathEdges.add(`${edge.from}→${edge.to}`);
@@ -1524,6 +1588,9 @@ async function runTugas5() {
                 state.pathEdges.add(`${edge.to}→${edge.from}`);
             }
         }
+        // Store final tour so we can restore it when stepping back to index 0
+        state.t5FinalPathEdges = new Set(state.pathEdges);
+
         summary.textContent = `Tour: ${(data.tour || []).join(" → ")}`;
         meta.textContent = `Total weight: ${data.total_weight}`;
 
