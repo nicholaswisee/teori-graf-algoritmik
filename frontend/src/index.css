@@ -1,0 +1,21 @@
+@import "tailwindcss";
+
+:root {
+  --bg: #f4f6f8;
+  --bg2: #ffffff;
+  --primary: #7c6af7;
+  --primary-glow: rgba(124, 106, 247, 0.35);
+  --accent: #60a5fa;
+  --success: #34d399;
+  --danger: #f87171;
+  --warn: #fbbf24;
+}
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  color: #0f172a;
+}
