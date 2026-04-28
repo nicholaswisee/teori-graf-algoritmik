@@ -2,11 +2,13 @@ import { useEffect, useRef, useCallback, useMemo } from 'react';
 import Cytoscape from 'react-cytoscapejs';
 import { useGraphStore } from '../store/graphStore';
 import { useGraphCanvas } from '../hooks/useGraphCanvas';
-import { cytoscapeStylesheet, cytoscapeLayout } from '../lib/cytoscapeConfig';
+import { cytoscapeStylesheet } from '../lib/cytoscapeConfig';
 import { COMP_COLORS, MODE_HINTS } from '../lib/constants';
+import { edgeId } from '../lib/edgeId';
 
 export default function GraphCanvas() {
   const cyRef = useRef(null);
+  const cyInitRef = useRef(false);
   const vertices = useGraphStore((s) => s.vertices);
   const edges = useGraphStore((s) => s.edges);
   const directed = useGraphStore((s) => s.directed);
@@ -24,7 +26,7 @@ export default function GraphCanvas() {
     const seen = new Set();
     const edgeElements = [];
     for (const e of edges) {
-      const key = directed ? `${e.from}→${e.to}` : [e.from, e.to].sort().join('↔');
+      const key = edgeId(e.from, e.to, directed);
       if (seen.has(key)) continue;
       seen.add(key);
       edgeElements.push({
@@ -105,20 +107,30 @@ export default function GraphCanvas() {
     }
   }, [elements, animation, directed]);
 
+  useEffect(() => {
+    const cy = cyRef.current;
+    if (!cy) return;
+    if (cy.nodes().length > 0) {
+      cy.fit(undefined, 50);
+    }
+  }, [elements]);
+
   const cyCallback = useCallback((cy) => {
     cyRef.current = cy;
-    cy.fit(undefined, 50);
+    if (!cyInitRef.current) {
+      cyInitRef.current = true;
+    }
   }, []);
 
   if (mode === 'islands') return null;
 
   return (
-    <div style={{ flex: 1, position: 'relative' }}>
+    <div style={{ width: '100%', height: '100%', position: 'relative' }}>
       <Cytoscape
         elements={elements}
         style={{ width: '100%', height: '100%' }}
         stylesheet={cytoscapeStylesheet}
-        layout={cytoscapeLayout}
+        layout={{ name: 'preset' }}
         cy={cyCallback}
       />
       <div style={{

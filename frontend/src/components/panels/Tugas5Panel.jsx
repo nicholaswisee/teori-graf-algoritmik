@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useGraphStore } from '../../store/graphStore';
 import { useSelectOptions } from '../../hooks/useSelectOptions';
 import { api, graphPayload } from '../../api/client';
+import { edgeId } from '../../lib/edgeId';
 import { PRESETS } from '../../lib/presets';
 import PresetGrid from '../shared/PresetGrid';
 import ResultBox from '../shared/ResultBox';
@@ -60,8 +61,8 @@ export default function Tugas5Panel() {
 
       const pathEdges = new Set();
       for (const edge of data.edges || []) {
-        pathEdges.add(`${edge.from}\u2192${edge.to}`);
-        if (!directed) pathEdges.add(`${edge.to}\u2192${edge.from}`);
+        pathEdges.add(edgeId(edge.from, edge.to, directed));
+        if (!directed) pathEdges.add(edgeId(edge.to, edge.from, directed));
       }
 
       setAnimation({
@@ -124,7 +125,7 @@ export default function Tugas5Panel() {
                 setAnimation({ frameIndex: 0, pulseNode: null, activePathEdge: null, cutEdges: new Set(), swapEdges: new Set(), pathEdges: s.animation.finalPathEdges || new Set() });
               } else {
                 const frame = s.animation.frames[newIndex - 1];
-                setAnimation({ frameIndex: newIndex, pulseNode: frame?.node ?? null, activePathEdge: frame?.edge ? `${frame.edge[0]}\u2192${frame.edge[1]}` : null });
+                setAnimation({ frameIndex: newIndex, pulseNode: frame?.node ?? null, activePathEdge: frame?.edge ? edgeId(frame.edge[0], frame.edge[1], directed) : null });
               }
             }
           }}>◀ Step</button>

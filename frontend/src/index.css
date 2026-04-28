@@ -410,6 +410,7 @@ html, body, #root {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 6px;
+  margin-top: 8px;
 }
 .btn-preset {
   background: var(--bg3);
@@ -560,6 +561,8 @@ html, body, #root {
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 16px;
+  width: fit-content;
+  margin: 0 auto;
 }
 .grid-row {
   display: flex;

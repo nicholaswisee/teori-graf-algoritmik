@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useGraphStore } from '../../store/graphStore';
 import { useSelectOptions } from '../../hooks/useSelectOptions';
 import { api, graphPayload } from '../../api/client';
+import { edgeId } from '../../lib/edgeId';
 import AlgoToggle from '../shared/AlgoToggle';
 import ResultBox from '../shared/ResultBox';
 
@@ -24,8 +25,8 @@ export default function PathPanel() {
       if (data.found) {
         const pathEdges = new Set();
         for (let i = 0; i < data.path.length - 1; i++) {
-          pathEdges.add(`${data.path[i]}\u2192${data.path[i + 1]}`);
-          if (!directed) pathEdges.add(`${data.path[i + 1]}\u2192${data.path[i]}`);
+          pathEdges.add(edgeId(data.path[i], data.path[i + 1], state.directed));
+          if (!state.directed) pathEdges.add(edgeId(data.path[i + 1], data.path[i], state.directed));
         }
         setAnimation({ pathNodes: data.path, pathEdges });
       } else {

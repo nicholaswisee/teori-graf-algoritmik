@@ -48,15 +48,16 @@ export default function Tugas4Panel() {
     for (const [label, [dx, dy]] of Object.entries(v)) {
       verts[label] = { x: cx + dx, y: cy + dy };
     }
+    const isDirected = preset.directedOverride ?? directed;
     const edges = [];
     for (const edge of e) {
       const [from, to, weight = 1] = edge;
       edges.push({ from, to, weight });
-      if (!directed) edges.push({ from: to, to: from, weight });
+      if (!isDirected) edges.push({ from: to, to: from, weight });
     }
-    if (preset.directedOverride) setDirected(true);
+    if (preset.directedOverride !== undefined) setDirected(preset.directedOverride);
     if (preset.algoOverride) setT4Algorithm(preset.algoOverride);
-    loadGraphData({ vertices: verts, edges, directed: preset.directedOverride ?? false });
+    loadGraphData({ vertices: verts, edges, directed: isDirected });
 
     if (preset.startOverride) setStart(preset.startOverride);
     if (preset.endOverride) setEnd(preset.endOverride);

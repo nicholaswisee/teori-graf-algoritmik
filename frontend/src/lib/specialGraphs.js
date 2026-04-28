@@ -218,14 +218,67 @@ export function generateSpecialGraph(key, params, canvasWidth, canvasHeight, ran
   } else if (key === "hypercube") {
     const n = Math.min(5, Math.max(1, p.n));
     const total = 1 << n;
-    for (let i = 0; i < total; i++) {
-      let setBits = 0;
-      for (let b = 0; b < n; b++) if (i & (1 << b)) setBits++;
-      const a = (i / total) * Math.PI * 2;
-      const rOffset = n === 1 ? 1 : n === 2 ? 0.8 : setBits / n;
-      addV(i, cx + Math.cos(a) * baseR * (0.3 + rOffset * 0.7), cy + Math.sin(a) * baseR * (0.3 + rOffset * 0.7));
-      for (let b = 0; b < n; b++) {
-        if ((i & (1 << b)) === 0) addE(i, i | (1 << b));
+
+    if (n === 1) {
+      // H1: just two points in a line
+      const sp = Math.min(w * 0.6, 200);
+      addV(0, cx - sp / 2, cy);
+      addV(1, cx + sp / 2, cy);
+      addE(0, 1);
+    } else if (n === 2) {
+      // H2: square
+      const side = Math.min(w, h) * 0.45;
+      addV('00', cx - side / 2, cy - side / 2);
+      addV('01', cx + side / 2, cy - side / 2);
+      addV('10', cx - side / 2, cy + side / 2);
+      addV('11', cx + side / 2, cy + side / 2);
+      addE('00', '01');
+      addE('00', '10');
+      addE('01', '11');
+      addE('10', '11');
+    } else if (n === 3) {
+      // H3: cube - two squares offset
+      const side = Math.min(w, h) * 0.28;
+      const offset = 40;
+      // front square
+      addV('000', cx - side - offset / 2, cy - side + offset / 2);
+      addV('001', cx + side - offset / 2, cy - side + offset / 2);
+      addV('010', cx - side - offset / 2, cy + side + offset / 2);
+      addV('011', cx + side - offset / 2, cy + side + offset / 2);
+      // back square (shifted)
+      addV('100', cx - side + offset / 2, cy - side - offset / 2);
+      addV('101', cx + side + offset / 2, cy - side - offset / 2);
+      addV('110', cx - side + offset / 2, cy + side - offset / 2);
+      addV('111', cx + side + offset / 2, cy + side - offset / 2);
+      // front face
+      addE('000', '001'); addE('001', '011'); addE('011', '010'); addE('010', '000');
+      // back face
+      addE('100', '101'); addE('101', '111'); addE('111', '110'); addE('110', '100');
+      // connecting edges
+      addE('000', '100'); addE('001', '101'); addE('010', '110'); addE('011', '111');
+    } else {
+      // H4+ n-dimensional: concentric hyperspheres based on bit count
+      const layers = {};
+      for (let i = 0; i < total; i++) {
+        let popcount = 0;
+        for (let b = 0; b < n; b++) if (i & (1 << b)) popcount++;
+        if (!layers[popcount]) layers[popcount] = [];
+        layers[popcount].push(i);
+      }
+      const numLayers = Object.keys(layers).length;
+      const layerSpacing = baseR * 2 / Math.max(numLayers - 1, 1);
+      for (const [layer, nodes] of Object.entries(layers)) {
+        const r = numLayers === 1 ? 0 : (parseFloat(layer) / (numLayers - 1)) * baseR * 1.6 - baseR * 0.8 + baseR * 0.3;
+        nodes.forEach((node, idx) => {
+          const angleOffset = layer % 2 === 0 ? 0 : Math.PI / nodes.length;
+          const a = angleOffset + (idx / nodes.length) * Math.PI * 2;
+          addV(node, cx + Math.cos(a) * r, cy + Math.sin(a) * r);
+        });
+      }
+      for (let i = 0; i < total; i++) {
+        for (let b = 0; b < n; b++) {
+          if ((i & (1 << b)) === 0) addE(i, i | (1 << b));
+        }
       }
     }
   } else if (key === "grid") {
