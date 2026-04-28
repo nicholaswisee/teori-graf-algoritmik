@@ -7,43 +7,80 @@ Proyek ini disusun untuk kelas **Teori Graf Algoritmik** Anda. Proyek ini menyed
 ```text
 .
 ├── main.py                # Skrip utama untuk menguji dan menjalankan kode graph Anda
+├── run_gui.py             # Entry point untuk menjalankan Flask GUI server
 ├── src/                   # Folder kode sumber
 │   ├── graph.py           # Struktur data kelas DirectedGraph & UndirectedGraph (Adjacency List)
-│   └── algorithms/        # Folder untuk menyimpan algoritma spesifik di masa mendatang
-│       └── __init__.py    # (misalnya shortest_path.py, mst.py, matching.py)
-└── README.md              # Dokumentasi
+│   └── algorithms/        # Folder algoritma (tugas1-5)
+├── gui/                   # Flask backend (API blueprints)
+│   ├── app.py             # App factory + blueprint registration
+│   └── api/routes/        # API endpoints per tugas
+└── frontend/              # Vite + React + Cytoscape.js frontend
+    ├── src/
+    │   ├── components/    # React components
+    │   ├── store/         # Zustand state management
+    │   ├── hooks/         # Custom React hooks
+    │   ├── lib/           # Cytoscape config, presets, API client
+    │   └── api/           # API client
+    └── vite.config.js
 ```
 
 ## Getting Started
 
 ### Prasyarat
 
-Install [Python 3](https://www.python.org/downloads/) terlebih dahulu.
+- [Python 3](https://www.python.org/downloads/) dan [uv](https://docs.astral.sh/uv/)
+- [Bun](https://bun.sh/)
 
-- Untuk memeriksa apakah Python sudah terinstal, jalankan:
-  ```bash
-  python --version
-  # atau
-  python3 --version
-  ```
+### Setup dengan uv
 
-### Menjalankan Kode
+```bash
+uv venv
+source .venv/bin/activate   # Linux/macOS
+# or
+.venv\Scripts\activate      # Windows
+
+uv pip install -r requirements.txt
+```
+
+### Setup Frontend
+
+```bash
+cd frontend
+bun install
+```
+
+### Running Backend (Flask)
+
+```bash
+# Aktifkan venv terlebih dahulu
+source .venv/bin/activate
+python run_gui.py
+```
+
+Server berjalan di `http://localhost:5000`
+
+### Running Frontend (Development)
+
+```bash
+cd frontend
+bun run dev
+```
+
+Vite dev server berjalan di `http://localhost:5173` dan mem-proxy `/api` ke Flask.
+
+### Production Build
+
+```bash
+cd frontend
+bun run build
+```
+
+Flask akan menyajikan `frontend/dist/` sebagai static files di production. Cukup jalankan `python run_gui.py` dan buka `http://localhost:5000`.
+
+### Menjalankan Kode CLI
 
 Untuk menjalankan tes dasar yang disediakan di `main.py`:
 
 ```bash
-# Jalankan skrip entri utama
 python main.py
-# Jika perintah di atas tidak berfungsi, gunakan python3
-python3 main.py
 ```
-
-Ini akan menginisialisasi contoh graph dasar dan menampilkan strukturnya untuk membuktikan bahwa kodenya berfungsi.
-
-## Menambahkan algoritma di masa mendatang
-
-Ketika Anda ditugaskan algoritma baru (seperti lintasan terpendek / shortest path):
-
-1. Buat file baru di folder `src/algorithms/` (misalnya, `dijkstra.py`).
-2. Tulis sebuah fungsi yang menerima instance `DirectedGraph` atau `UndirectedGraph` sebagai argumen.
-3. Impor fungsi tersebut ke dalam `main.py` untuk mengujinya.
