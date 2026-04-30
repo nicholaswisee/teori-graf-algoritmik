@@ -15,7 +15,7 @@ export default function App() {
         flex: 1,
         display: 'grid',
         gridTemplateRows: '52px 1fr',
-        gridTemplateColumns: '1fr 280px',
+        gridTemplateColumns: '1fr 300px',
         gridTemplateAreas: '"topbar topbar" "canvas panel"',
         overflow: 'hidden',
       }}>

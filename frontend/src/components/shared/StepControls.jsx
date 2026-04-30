@@ -1,9 +1,28 @@
+import { useEffect } from 'react';
 import { useAnimation } from '../../hooks/useAnimation';
 import { useGraphStore } from '../../store/graphStore';
 
 export default function StepControls({ type = 'steps' }) {
   const animation = useGraphStore((s) => s.animation);
-  const { stepForward, stepBack, playSteps, frameStepForward, frameStepBack, playFrames } = useAnimation();
+  const { stepForward, stepBack, playSteps, frameStepForward, frameStepBack, playFrames, stopFrameAnimation } = useAnimation();
+
+  useEffect(() => {
+    if (!animation.isPlayingFrames) return;
+    if (animation.frameIndex >= animation.frames.length) {
+      stopFrameAnimation();
+      return;
+    }
+    const id = setInterval(() => {
+      const state = useGraphStore.getState();
+      if (state.animation.frameIndex >= state.animation.frames.length) {
+        clearInterval(id);
+        stopFrameAnimation();
+        return;
+      }
+      frameStepForward();
+    }, 800);
+    return () => clearInterval(id);
+  }, [animation.isPlayingFrames, animation.frameIndex, animation.frames.length, frameStepForward, stopFrameAnimation]);
 
   if (type === 'frames') {
     if (animation.frames.length === 0) return null;

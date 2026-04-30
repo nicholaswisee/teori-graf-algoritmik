@@ -3,6 +3,9 @@ import { useGraphStore } from '../../store/graphStore';
 import { SPECIAL_GRAPHS } from '../../lib/constants';
 import { generateSpecialGraph } from '../../lib/specialGraphs';
 import { PRESETS } from '../../lib/presets';
+import { buildGeoGraph } from '../../lib/geoGraph';
+import { bandungNodes } from '../../data/bandungData';
+import { indonesiaNodes } from '../../data/indonesiaData';
 import PresetGrid from '../shared/PresetGrid';
 
 export default function SetupPanel() {
@@ -26,6 +29,7 @@ export default function SetupPanel() {
   const [weightMin, setWeightMin] = useState(1);
   const [weightMax, setWeightMax] = useState(20);
   const [triangleIneq, setTriangleIneq] = useState(false);
+  const [geoMaxDist, setGeoMaxDist] = useState(300);
 
   const vertices = useGraphStore((s) => s.vertices);
   const addVertex = useGraphStore((s) => s.addVertex);
@@ -126,6 +130,23 @@ export default function SetupPanel() {
     });
   }
 
+  function loadGeoDataset(nodes) {
+    clearGraph();
+    const { w, h } = getCanvasSize();
+    const result = buildGeoGraph(nodes, geoMaxDist, w, h, true);
+    if (!result) {
+      alert('No edges found within the given distance threshold. Increase max distance.');
+      return;
+    }
+    setDirected(false);
+    const edges = [];
+    for (const e of result.edges) {
+      edges.push({ from: e.from, to: e.to, weight: e.weight });
+      edges.push({ from: e.to, to: e.from, weight: e.weight });
+    }
+    loadGraphData({ vertices: result.vertices, edges, directed: false });
+  }
+
   const setupPresets = [
     { label: 'Triangle', onClick: () => loadPreset('triangle') },
     { label: 'Chain', onClick: () => loadPreset('chain') },
@@ -223,6 +244,30 @@ export default function SetupPanel() {
           )}
         </div>
         <button className="btn-primary full-width mt-4" onClick={handleGenerate}>Generate Graph</button>
+      </div>
+      <div className="field-group">
+        <label className="field-label">Geographic Datasets</label>
+        <button className="btn-ghost full-width mt-4" onClick={() => loadGeoDataset(bandungNodes)}>
+          Load Bandung Kecamatan (30 nodes)
+        </button>
+        <div style={{ display: 'flex', gap: 8, marginTop: 8, alignItems: 'center' }}>
+          <button className="btn-ghost full-width" onClick={() => loadGeoDataset(indonesiaNodes)}>
+            Load Indonesia Cities (514 nodes)
+          </button>
+          <div style={{ flexShrink: 0 }}>
+            <label style={{ fontSize: 11, color: '#64748b', display: 'block', marginBottom: 3 }}>Max dist (km)</label>
+            <input
+              type="number"
+              className="num-input"
+              value={geoMaxDist}
+              min={50}
+              max={2000}
+              step={50}
+              onChange={(e) => setGeoMaxDist(Number(e.target.value))}
+              style={{ width: 80 }}
+            />
+          </div>
+        </div>
       </div>
       <div className="field-group">
         <label className="field-label">Node Guide</label>

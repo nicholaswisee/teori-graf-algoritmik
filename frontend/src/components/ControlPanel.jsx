@@ -8,6 +8,8 @@ import PropertiesPanel from './panels/PropertiesPanel';
 import ShortestPanel from './panels/ShortestPanel';
 import Tugas4Panel from './panels/Tugas4Panel';
 import Tugas5Panel from './panels/Tugas5Panel';
+import Tugas6MatchingPanel from './panels/Tugas6MatchingPanel';
+import Tugas6TimetablePanel from './panels/Tugas6TimetablePanel';
 import AlgorithmPanel from './panels/AlgorithmPanel';
 
 export default function ControlPanel() {
@@ -23,6 +25,8 @@ export default function ControlPanel() {
     shortest: ShortestPanel,
     tugas4: Tugas4Panel,
     tugas5: Tugas5Panel,
+    tugas6_matching: Tugas6MatchingPanel,
+    tugas6_timetable: Tugas6TimetablePanel,
     algorithms: AlgorithmPanel,
   };
 

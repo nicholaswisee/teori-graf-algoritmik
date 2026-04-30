@@ -6,6 +6,7 @@ import { edgeId } from '../../lib/edgeId';
 import { PRESETS } from '../../lib/presets';
 import PresetGrid from '../shared/PresetGrid';
 import ResultBox from '../shared/ResultBox';
+import StepControls from '../shared/StepControls';
 
 export default function Tugas5Panel() {
   const directed = useGraphStore((s) => s.directed);
@@ -108,37 +109,14 @@ export default function Tugas5Panel() {
           {options.map((o) => <option key={o} value={o}>{o}</option>)}
         </select>
       </div>
-      <div className="preset-grid mt-4">
-        <PresetGrid presets={t5Presets} />
+      <div className="mt-4">
+        <PresetGrid presets={t5Presets} fullWidth />
       </div>
       <button className="btn-run mt-8" onClick={handleRun}>
         <svg viewBox="0 0 16 16" fill="none"><path d="M3 2l10 6-10 6V2z" fill="currentColor" /></svg>
         Run TSP
       </button>
-      {animation.frames.length > 0 && (
-        <div className="step-controls">
-          <button className="btn-ghost small" onClick={() => {
-            const s = useGraphStore.getState();
-            if (s.animation.frameIndex > 0) {
-              const newIndex = s.animation.frameIndex - 1;
-              if (newIndex === 0) {
-                setAnimation({ frameIndex: 0, pulseNode: null, activePathEdge: null, cutEdges: new Set(), swapEdges: new Set(), pathEdges: s.animation.finalPathEdges || new Set() });
-              } else {
-                const frame = s.animation.frames[newIndex - 1];
-                setAnimation({ frameIndex: newIndex, pulseNode: frame?.node ?? null, activePathEdge: frame?.edge ? edgeId(frame.edge[0], frame.edge[1], directed) : null });
-              }
-            }
-          }}>◀ Step</button>
-          <button className="btn-ghost small" onClick={() => { useGraphStore.getState().setAnimation({ frameIndex: 0, isPlayingFrames: true }); }}>Play</button>
-          <button className="btn-ghost small" onClick={() => {
-            const s = useGraphStore.getState();
-            if (s.animation.frameIndex < s.animation.frames.length) {
-              useGraphStore.getState().setAnimation({ frameIndex: s.animation.frameIndex + 1 });
-            }
-          }}>Step ▶</button>
-          <span className="step-counter">{animation.frameIndex} / {animation.frames.length}</span>
-        </div>
-      )}
+      <StepControls type="frames" />
       {showResult && result && (
         <ResultBox label="Result">
           <div className={`result-badge ${completeTour ? 'connected' : 'disconnected'}`}>

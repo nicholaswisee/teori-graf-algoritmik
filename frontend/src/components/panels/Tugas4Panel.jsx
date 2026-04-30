@@ -6,6 +6,7 @@ import { api, graphPayload } from '../../api/client';
 import { PRESETS } from '../../lib/presets';
 import PresetGrid from '../shared/PresetGrid';
 import ResultBox from '../shared/ResultBox';
+import StepControls from '../shared/StepControls';
 
 export default function Tugas4Panel() {
   const t4Algorithm = useGraphStore((s) => s.t4Algorithm);
@@ -118,21 +119,14 @@ export default function Tugas4Panel() {
           </div>
         </div>
       )}
-      <div className="preset-grid mt-4">
-        <PresetGrid presets={t4Presets} />
+      <div className="mt-4">
+        <PresetGrid presets={t4Presets} fullWidth />
       </div>
       <button className="btn-run mt-8" onClick={handleRun}>
         <svg viewBox="0 0 16 16" fill="none"><path d="M3 2l10 6-10 6V2z" fill="currentColor" /></svg>
         Run Weighted Algorithm
       </button>
-      {animation.frames.length > 0 && (
-        <div className="step-controls">
-          <button className="btn-ghost small" onClick={() => { const s = useGraphStore.getState(); if (s.animation.frameIndex > 0) { useGraphStore.getState().setAnimation({ frameIndex: s.animation.frameIndex - 1 }); } }}>◀ Step</button>
-          <button className="btn-ghost small" onClick={() => { useGraphStore.getState().setAnimation({ frameIndex: 0, isPlayingFrames: true }); }}>Play</button>
-          <button className="btn-ghost small" onClick={() => { const s = useGraphStore.getState(); if (s.animation.frameIndex < s.animation.frames.length) { useGraphStore.getState().setAnimation({ frameIndex: s.animation.frameIndex + 1 }); } }}>Step ▶</button>
-          <span className="step-counter">{animation.frameIndex} / {animation.frames.length}</span>
-        </div>
-      )}
+      <StepControls type="frames" />
       {showResult && result && (
         <ResultBox label="Result">
           {result.algorithm === 'shortest_path' ? (

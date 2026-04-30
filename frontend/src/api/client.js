@@ -48,6 +48,8 @@ export const api = {
   tugas3Shortest: (payload) => apiPost("/tugas3/shortest_path", payload),
   tugas4Run: (payload) => apiPost("/tugas4/run", payload),
   tugas5Tsp: (payload) => apiPost("/tugas5/tsp", payload),
+  tugas6Matching: (payload) => apiPost("/tugas6/matching", payload),
+  tugas6Timetable: (payload) => apiPost("/tugas6/timetable", payload),
   listAlgorithms: () => apiGet("/algorithms"),
   getAlgorithm: (tugas, name) => apiGet(`/algorithms/${tugas}/${name}`),
 };

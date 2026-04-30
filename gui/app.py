@@ -11,6 +11,7 @@ from gui.api.routes.tugas2 import tugas2_bp
 from gui.api.routes.tugas3 import tugas3_bp
 from gui.api.routes.tugas4 import tugas4_bp
 from gui.api.routes.tugas5 import tugas5_bp
+from gui.api.routes.tugas6 import tugas6_bp
 from gui.api.routes.algorithms import algorithms_bp
 
 
@@ -23,6 +24,7 @@ def create_app():
     app.register_blueprint(tugas3_bp)
     app.register_blueprint(tugas4_bp)
     app.register_blueprint(tugas5_bp)
+    app.register_blueprint(tugas6_bp)
     app.register_blueprint(algorithms_bp)
 
     frontend_dist = os.path.join(

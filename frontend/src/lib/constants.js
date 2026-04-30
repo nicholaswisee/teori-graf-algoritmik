@@ -5,7 +5,7 @@ export const COMP_COLORS = [
 
 export const MODES = [
   "setup", "traversal", "path", "connected", "components",
-  "islands", "properties", "shortest", "tugas4", "tugas5", "algorithms",
+  "islands", "properties", "shortest", "tugas4", "tugas5", "tugas6_matching", "tugas6_timetable", "algorithms",
 ];
 
 export const MODE_TITLES = {
@@ -19,6 +19,8 @@ export const MODE_TITLES = {
   shortest: "Shortest Distance",
   tugas4: "Weighted Graph Algorithms",
   tugas5: "TSP Algorithm",
+  tugas6_matching: "Maximum Matching",
+  tugas6_timetable: "Timetabling",
   algorithms: "Algorithm Viewer",
 };
 
@@ -33,6 +35,8 @@ export const MODE_HINTS = {
   shortest: "Find the shortest distance between two specific nodes",
   tugas4: "Run weighted graph algorithms and step through the animation",
   tugas5: "Run Christofides + 3-Opt TSP to find a Hamiltonian cycle",
+  tugas6_matching: "Find maximum matching in a bipartite graph using Hopcroft-Karp",
+  tugas6_timetable: "Build a conflict-free timetable using graph coloring",
   algorithms: "Browse algorithm source code by Tugas",
 };
 

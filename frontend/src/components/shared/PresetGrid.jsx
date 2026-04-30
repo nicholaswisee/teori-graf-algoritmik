@@ -1,6 +1,6 @@
-export default function PresetGrid({ presets }) {
+export default function PresetGrid({ presets, fullWidth }) {
   return (
-    <div className="preset-grid">
+    <div className={`preset-grid${fullWidth ? ' preset-grid--full' : ''}`}>
       {presets.map((p) => (
         <button key={p.label} className="btn-preset" onClick={p.onClick}>
           {p.label}

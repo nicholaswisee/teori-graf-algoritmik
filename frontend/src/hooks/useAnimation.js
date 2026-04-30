@@ -87,7 +87,7 @@ export function useAnimation() {
     if (animation.frameIndex > 0) {
       const newIndex = animation.frameIndex - 1;
       if (newIndex === 0) {
-        setAnimation({ frameIndex: 0, pulseNode: null, activePathEdge: null, cutEdges: new Set(), swapEdges: new Set() });
+        setAnimation({ frameIndex: 0, pulseNode: null, activePathEdge: null, cutEdges: new Set(), swapEdges: new Set(), pathEdges: animation.finalPathEdges || animation.pathEdges || new Set() });
       } else {
         const frame = animation.frames[newIndex - 1];
         setAnimation({

@@ -17,6 +17,10 @@ const NAV_ITEMS = [
   ]},
   { section: 'Tugas 4', items: [{ mode: 'tugas4', label: 'Weighted Algorithms', icon: 'tugas4' }] },
   { section: 'Tugas 5', items: [{ mode: 'tugas5', label: 'TSP Algorithm', icon: 'tugas5' }] },
+  { section: 'Tugas 6', items: [
+    { mode: 'tugas6_matching', label: 'Maximum Matching', icon: 'tugas6_matching' },
+    { mode: 'tugas6_timetable', label: 'Timetabling', icon: 'tugas6_timetable' },
+  ]},
   { section: 'Algorithms', items: [{ mode: 'algorithms', label: 'Algorithm Viewer', icon: 'algorithms' }] },
 ];
 
@@ -96,6 +100,21 @@ function NavIcon({ icon }) {
       return (
         <svg viewBox="0 0 20 20" fill="none">
           <circle cx="10" cy="10" r="7" stroke="currentColor" strokeWidth="1.5" strokeDasharray="2 2" />
+        </svg>
+      );
+    case 'tugas6_matching':
+      return (
+        <svg viewBox="0 0 20 20" fill="none">
+          <circle cx="6" cy="6" r="3" stroke="currentColor" strokeWidth="1.5" />
+          <circle cx="14" cy="14" r="3" stroke="currentColor" strokeWidth="1.5" />
+          <path d="M9 6h2M6 9v2M14 9v2M11 14h2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+        </svg>
+      );
+    case 'tugas6_timetable':
+      return (
+        <svg viewBox="0 0 20 20" fill="none">
+          <rect x="3" y="3" width="14" height="14" rx="2" stroke="currentColor" strokeWidth="1.5" />
+          <path d="M3 7h14M7 3v14" stroke="currentColor" strokeWidth="1.5" />
         </svg>
       );
     case 'algorithms':

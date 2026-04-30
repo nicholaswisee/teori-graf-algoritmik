@@ -104,14 +104,14 @@ export default function IslandsPanel() {
           <span className="cell-w">W</span> = Water. Click cells to toggle.
         </p>
       </div>
-      <button className="btn-run" onClick={handleRun}>
+      <button className="btn-run" onClick={handleRun} style={{ width: 'auto', marginInline: 'auto' }}>
         <svg viewBox="0 0 16 16" fill="none"><path d="M3 2l10 6-10 6V2z" fill="currentColor" /></svg>
         Count Islands
       </button>
-      <button className="btn-ghost mt-4 full-width" onClick={handleReset} style={{ maxWidth: 300 }}>Reset Grid</button>
+      <button className="btn-ghost mt-4" onClick={handleReset} style={{ width: 'auto', marginInline: 'auto' }}>Reset Grid</button>
       {islandResult && (
         <ResultBox label="">
-          <div className="result-row">
+          <div className="result-row" style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center', gap: 4 }}>
             <span className="result-label">Islands Found</span>
             <span className="result-num">{islandResult.count}</span>
           </div>
