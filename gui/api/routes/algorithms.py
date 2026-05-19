@@ -4,7 +4,7 @@ from gui.api.utils import ALGORITHM_REGISTRY
 
 algorithms_bp = Blueprint("algorithms", __name__, url_prefix="/api/algorithms")
 
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 
 @algorithms_bp.route("", methods=["GET"])

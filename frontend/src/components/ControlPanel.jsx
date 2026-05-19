@@ -10,6 +10,7 @@ import Tugas4Panel from './panels/Tugas4Panel';
 import Tugas5Panel from './panels/Tugas5Panel';
 import Tugas6MatchingPanel from './panels/Tugas6MatchingPanel';
 import Tugas6TimetablePanel from './panels/Tugas6TimetablePanel';
+import Tugas7Panel from './panels/Tugas7Panel';
 import AlgorithmPanel from './panels/AlgorithmPanel';
 
 export default function ControlPanel() {
@@ -27,6 +28,7 @@ export default function ControlPanel() {
     tugas5: Tugas5Panel,
     tugas6_matching: Tugas6MatchingPanel,
     tugas6_timetable: Tugas6TimetablePanel,
+    tugas7: Tugas7Panel,
     algorithms: AlgorithmPanel,
   };
 

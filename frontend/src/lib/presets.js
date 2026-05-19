@@ -158,4 +158,87 @@ export const PRESETS = {
       w, h,
     ),
   },
+
+  // --- Bandwidth (Tugas 7) Presets ---
+  t7_star: {
+    build: (w, h) => {
+      const cx = w / 2;
+      const cy = h / 2;
+      const r = Math.min(w, h) * 0.35;
+      const labels = ["H", "A", "B", "C", "D", "E"];
+      const v = {};
+      // H at center, others in a circle
+      v["H"] = [0, 0];
+      labels.slice(1).forEach((label, i) => {
+        const angle = -Math.PI / 2 + (i / 5) * Math.PI * 2;
+        v[label] = [r * Math.cos(angle), r * Math.sin(angle)];
+      });
+      const e = [["H", "A"], ["H", "B"], ["H", "C"], ["H", "D"], ["H", "E"]];
+      return { v, e };
+    },
+  },
+
+  t7_binary_tree: {
+    build: (w, h) => {
+      const cx = w / 2;
+      const cy = h / 2;
+      const levelH = Math.min(w, h) * 0.25;
+      const spread = Math.min(w, h) * 0.3;
+      const v = {
+        A: [0, -levelH],
+        B: [-spread, 0],
+        C: [spread, 0],
+        D: [-spread * 1.5, levelH],
+        E: [-spread * 0.5, levelH],
+        F: [spread * 0.5, levelH],
+        G: [spread * 1.5, levelH],
+      };
+      const e = [
+        ["A", "B"], ["A", "C"],
+        ["B", "D"], ["B", "E"],
+        ["C", "F"], ["C", "G"],
+      ];
+      return { v, e };
+    },
+  },
+
+  t7_path_chords: {
+    build: (w, h) => {
+      const spread = Math.min(w, h) * 0.35;
+      const v = {
+        A: [-spread * 1.5, 0],
+        B: [-spread, -spread * 0.4],
+        C: [-spread * 0.5, spread * 0.3],
+        D: [0, -spread * 0.4],
+        E: [spread * 0.5, spread * 0.3],
+        F: [spread, -spread * 0.4],
+        G: [spread * 1.5, 0],
+      };
+      const e = [
+        ["A", "B"], ["B", "C"], ["C", "D"], ["D", "E"], ["E", "F"], ["F", "G"],
+        ["A", "D"], ["C", "F"],
+      ];
+      return { v, e };
+    },
+  },
+
+  t7_two_clusters: {
+    build: (w, h) => {
+      const spread = Math.min(w, h) * 0.28;
+      const v = {
+        A: [-spread * 1.2, -spread * 0.5],
+        B: [-spread * 0.4, -spread * 0.8],
+        C: [-spread * 0.6, spread * 0.4],
+        D: [spread * 0.6, -spread * 0.4],
+        E: [spread * 1.2, spread * 0.5],
+        F: [spread * 0.4, spread * 0.8],
+      };
+      const e = [
+        ["A", "B"], ["B", "C"], ["A", "C"],
+        ["D", "E"], ["E", "F"], ["D", "F"],
+        ["A", "D"],
+      ];
+      return { v, e };
+    },
+  },
 };

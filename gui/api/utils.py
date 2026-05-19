@@ -82,4 +82,14 @@ ALGORITHM_REGISTRY = {
             {"name": "christofides_3opt_tsp_trace", "description": "TSP via Christofides + 3-Opt local search"},
         ],
     },
+    "7": {
+        "tugas": 7,
+        "name": "bandwidth",
+        "label": "Bandwidth Reduction (RCM)",
+        "file": "src/algorithms/tugas7.py",
+        "class": "Tugas7",
+        "methods": [
+            {"name": "rcm_bandwidth", "description": "Reduce graph bandwidth using Reverse Cuthill-McKee heuristic"},
+        ],
+    },
 }

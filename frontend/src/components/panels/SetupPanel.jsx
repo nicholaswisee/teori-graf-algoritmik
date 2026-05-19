@@ -35,6 +35,7 @@ export default function SetupPanel() {
   const addVertex = useGraphStore((s) => s.addVertex);
   const addEdge = useGraphStore((s) => s.addEdge);
   const clearGraph = useGraphStore((s) => s.clearGraph);
+  const autoPositionForceDirected = useGraphStore((s) => s.autoPositionForceDirected);
 
   function getCanvasSize() {
     const el = document.querySelector('.canvas-wrapper') || document.querySelector('[data-canvas]');
@@ -244,6 +245,27 @@ export default function SetupPanel() {
           )}
         </div>
         <button className="btn-primary full-width mt-4" onClick={handleGenerate}>Generate Graph</button>
+      </div>
+      <div className="field-group">
+        <label className="field-label">Layout</label>
+        <button
+          className="btn-ghost full-width"
+          onClick={() => autoPositionForceDirected()}
+          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}
+        >
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <circle cx="8" cy="8" r="2" fill="currentColor" />
+            <circle cx="4" cy="4" r="1.5" stroke="currentColor" strokeWidth="1" />
+            <circle cx="12" cy="4" r="1.5" stroke="currentColor" strokeWidth="1" />
+            <circle cx="4" cy="12" r="1.5" stroke="currentColor" strokeWidth="1" />
+            <circle cx="12" cy="12" r="1.5" stroke="currentColor" strokeWidth="1" />
+            <path d="M5 5l2 2M11 5L9 7M5 11l2-2M11 11l-2-2" stroke="currentColor" strokeWidth="0.8" opacity="0.5" />
+          </svg>
+          Auto Position (Force-Directed)
+        </button>
+        <p className="hint-text mt-2">
+          Repels disconnected nodes and pulls connected nodes together using a physics simulation.
+        </p>
       </div>
       <div className="field-group">
         <label className="field-label">Geographic Datasets</label>

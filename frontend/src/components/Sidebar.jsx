@@ -21,6 +21,7 @@ const NAV_ITEMS = [
     { mode: 'tugas6_matching', label: 'Maximum Matching', icon: 'tugas6_matching' },
     { mode: 'tugas6_timetable', label: 'Timetabling', icon: 'tugas6_timetable' },
   ]},
+  { section: 'Tugas 7', items: [{ mode: 'tugas7', label: 'Bandwidth Reduction', icon: 'tugas7' }] },
   { section: 'Algorithms', items: [{ mode: 'algorithms', label: 'Algorithm Viewer', icon: 'algorithms' }] },
 ];
 
@@ -115,6 +116,16 @@ function NavIcon({ icon }) {
         <svg viewBox="0 0 20 20" fill="none">
           <rect x="3" y="3" width="14" height="14" rx="2" stroke="currentColor" strokeWidth="1.5" />
           <path d="M3 7h14M7 3v14" stroke="currentColor" strokeWidth="1.5" />
+        </svg>
+      );
+    case 'tugas7':
+      return (
+        <svg viewBox="0 0 20 20" fill="none">
+          <path d="M3 15V5M7 15V8M11 15V10M15 15V6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+          <rect x="2" y="3" width="2" height="14" rx="0.5" stroke="currentColor" strokeWidth="1.5" />
+          <rect x="6" y="6" width="2" height="11" rx="0.5" stroke="currentColor" strokeWidth="1.5" />
+          <rect x="10" y="8" width="2" height="9" rx="0.5" stroke="currentColor" strokeWidth="1.5" />
+          <rect x="14" y="4" width="2" height="13" rx="0.5" stroke="currentColor" strokeWidth="1.5" />
         </svg>
       );
     case 'algorithms':

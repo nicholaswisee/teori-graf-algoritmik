@@ -5,7 +5,7 @@ export const COMP_COLORS = [
 
 export const MODES = [
   "setup", "traversal", "path", "connected", "components",
-  "islands", "properties", "shortest", "tugas4", "tugas5", "tugas6_matching", "tugas6_timetable", "algorithms",
+  "islands", "properties", "shortest", "tugas4", "tugas5", "tugas6_matching", "tugas6_timetable", "tugas7", "algorithms",
 ];
 
 export const MODE_TITLES = {
@@ -21,6 +21,7 @@ export const MODE_TITLES = {
   tugas5: "TSP Algorithm",
   tugas6_matching: "Maximum Matching",
   tugas6_timetable: "Timetabling",
+  tugas7: "Bandwidth Reduction",
   algorithms: "Algorithm Viewer",
 };
 
@@ -37,6 +38,7 @@ export const MODE_HINTS = {
   tugas5: "Run Christofides + 3-Opt TSP to find a Hamiltonian cycle",
   tugas6_matching: "Find maximum matching in a bipartite graph using Hopcroft-Karp",
   tugas6_timetable: "Build a conflict-free timetable using graph coloring",
+  tugas7: "Reduce graph bandwidth using Reverse Cuthill-McKee heuristic",
   algorithms: "Browse algorithm source code by Tugas",
 };
 
